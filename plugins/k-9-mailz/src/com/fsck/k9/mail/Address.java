@@ -20,7 +20,7 @@ import android.text.util.Rfc822Token;
 import android.text.util.Rfc822Tokenizer;
 import android.util.Log;
 
-import com.fsck.k9.K9;
+import com.fsck.k9.mail.K9;
 
 
 public class Address {

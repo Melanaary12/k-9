@@ -3,8 +3,8 @@ package com.fsck.k9.mail.transport;
 
 import android.util.Log;
 
-import com.fsck.k9.K9;
-import com.fsck.k9.R;
+import com.fsck.k9.mail.K9;
+import com.fsck.k9.mail.R;
 import com.fsck.k9.mail.*;
 import com.fsck.k9.mail.Message.RecipientType;
 import com.fsck.k9.mail.filter.Base64;

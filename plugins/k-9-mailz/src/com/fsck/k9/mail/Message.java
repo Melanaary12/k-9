@@ -11,7 +11,7 @@ import java.util.Set;
 
 import android.util.Log;
 
-import com.fsck.k9.K9;
+import com.fsck.k9.mail.K9;
 import com.fsck.k9.mail.filter.CountingOutputStream;
 import com.fsck.k9.mail.filter.EOLConvertingOutputStream;
 import com.fsck.k9.mail.internet.MessageExtractor;

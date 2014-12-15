@@ -19,7 +19,7 @@ package com.fsck.k9.mail.store;
 
 import android.util.Log;
 
-import com.fsck.k9.K9;
+import com.fsck.k9.mail.K9;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -3,8 +3,8 @@ package com.fsck.k9.mail;
 import android.content.Context;
 import android.widget.ArrayAdapter;
 
-import com.fsck.k9.K9;
-import com.fsck.k9.R;
+import com.fsck.k9.mail.K9;
+import com.fsck.k9.mail.R;
 
 public enum ConnectionSecurity {
     NONE(R.string.account_setup_incoming_security_none_label),

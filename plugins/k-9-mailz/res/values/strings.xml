@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="app_name">K-9 Mail</string>
+
+    <string name="account_setup_auth_type_normal_password">Normal password</string>
+    <string name="account_setup_auth_type_insecure_password">Password, transmitted insecurely</string>
+    <string name="auth_external_error">Unable to authenticate.  The server does not advertise the SASL EXTERNAL capability.  This could be due to a problem with the client certificate (expired, unknown certificate authority) or some other configuration problem.</string>
+    <string name="error_unable_to_connect">Unable to connect.</string>
+    <string name="client_certificate_expired">"Client certificate \"<xliff:g id="certificate_alias">%1$s</xliff:g>\" has expired or is not yet valid (<xliff:g id="exception_message">%2$s</xliff:g>)"</string>
+    <string name="client_certificate_retrieval_failure">"Failed to retrieve client certificate for alias \"<xliff:g id="alias">%s</xliff:g>\""</string>
+    <string name="account_setup_auth_type_encrypted_password">Encrypted password</string>
+    <string name="account_setup_incoming_security_none_label">None</string>
+    <string name="account_setup_incoming_security_ssl_label">SSL/TLS</string>
+    <string name="account_setup_auth_type_tls_client_certificate">Client certificate</string>
+    <string name="account_setup_incoming_security_tls_label">STARTTLS</string>
+</resources>

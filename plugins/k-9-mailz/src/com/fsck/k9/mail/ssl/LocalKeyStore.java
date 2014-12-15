@@ -15,7 +15,7 @@ import org.apache.commons.io.IOUtils;
 
 import android.util.Log;
 
-import com.fsck.k9.K9;
+import com.fsck.k9.mail.K9;
 
 public class LocalKeyStore {
     private static final int KEY_STORE_FILE_VERSION = 1;

@@ -20,8 +20,8 @@ import android.security.KeyChain;
 import android.security.KeyChainException;
 import android.util.Log;
 
-import com.fsck.k9.K9;
-import com.fsck.k9.R;
+import com.fsck.k9.mail.K9;
+import com.fsck.k9.mail.R;
 import com.fsck.k9.mail.CertificateValidationException;
 import com.fsck.k9.mail.MessagingException;
 

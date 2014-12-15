@@ -55,8 +55,8 @@ import android.os.PowerManager;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.fsck.k9.K9;
-import com.fsck.k9.R;
+import com.fsck.k9.mail.K9;
+import com.fsck.k9.mail.R;
 import com.fsck.k9.helper.power.TracingPowerManager;
 import com.fsck.k9.helper.power.TracingPowerManager.TracingWakeLock;
 import com.fsck.k9.mail.AuthType;
