@@ -2216,7 +2216,7 @@ public class ImapStore extends RemoteStore {
         }
     }
 
-    protected static class ImapMessage extends MimeMessage {
+    public static class ImapMessage extends MimeMessage {
         ImapMessage(String uid, Folder folder) {
             this.mUid = uid;
             this.mFolder = folder;
