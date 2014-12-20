@@ -48,7 +48,9 @@ uploadArchives {
         mavenDeployer {
             repository(id: 'zegoggles', url: "http://zegoggl.es:8081/nexus/content/repositories/thirdparty/") {
                 def sha = "git rev-parse --short HEAD".execute().text
-                authentication(userName: username, password:password)
+                if (project.hasProperty('username') && project.hasProperty('password')) {
+                    authentication(userName: username, password: password)
+                }
                 pom.project {
                     version "0.0.1.$sha"
                     groupId 'com.fsck.k9.mail'
