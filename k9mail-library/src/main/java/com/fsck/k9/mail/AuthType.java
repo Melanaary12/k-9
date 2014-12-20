@@ -23,5 +23,13 @@ public enum AuthType {
      * when importing settings.
      */
     AUTOMATIC,
-    LOGIN
+    LOGIN,
+
+    /**
+     *See
+     * <a href="https://sites.google.com/site/oauthgoog/Home/oauthimap">OAuthIMAP
+     *     </a> and <a href="https://developers.google.com/google-apps/gmail/xoauth2_protocol">XOAuth2 protocol</a>
+     */
+    XOAUTH,
+    XOAUTH2
 }
