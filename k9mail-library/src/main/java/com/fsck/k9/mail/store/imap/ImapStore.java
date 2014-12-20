@@ -2,6 +2,7 @@
 package com.fsck.k9.mail.store.imap;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -1865,6 +1866,12 @@ public class ImapStore extends RemoteStore {
                 Map<String, String> uidMap = new HashMap<String, String>();
                 for (Message message : messages) {
 
+                    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+                    EOLConvertingOutputStream eol = new EOLConvertingOutputStream(bos);
+                    message.writeTo(eol);
+                    eol.flush();
+                    final byte[] messageBytes = bos.toByteArray();
+
                     /*
                         http://www.faqs.org/rfcs/rfc3501.html
                         6.3.11. APPEND Command
@@ -1878,18 +1885,17 @@ public class ImapStore extends RemoteStore {
                                       encodeString(encodeFolderName(getPrefixedName())),
                                       combineFlags(message.getFlags()),
                                       INTERNAL_DATE.format(internalDate),
-                                      message.calculateSize()), false);
+                                      messageBytes.length), false);
 
                     ImapResponse response;
                     do {
                         response = mConnection.readResponse();
                         handleUntaggedResponse(response);
                         if (response.isContinuationRequested()) {
-                            EOLConvertingOutputStream eolOut = new EOLConvertingOutputStream(mConnection.getOutputStream());
-                            message.writeTo(eolOut);
-                            eolOut.write('\r');
-                            eolOut.write('\n');
-                            eolOut.flush();
+                            mConnection.getOutputStream().write(messageBytes);
+                            mConnection.getOutputStream().write('\r');
+                            mConnection.getOutputStream().write('\n');
+                            mConnection.getOutputStream().flush();
                         }
                     } while (response.getTag() == null);
 
