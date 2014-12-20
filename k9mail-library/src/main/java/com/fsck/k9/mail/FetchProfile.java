@@ -55,5 +55,10 @@ public class FetchProfile extends ArrayList<FetchProfile.Item> {
          * The entire message.
          */
         BODY,
+
+        /**
+         * The message date
+         */
+        DATE
     }
 }

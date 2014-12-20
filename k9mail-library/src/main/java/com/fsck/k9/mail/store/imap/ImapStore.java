@@ -1364,6 +1364,9 @@ public class ImapStore extends RemoteStore {
             if (fp.contains(FetchProfile.Item.BODY)) {
                 fetchFields.add("BODY.PEEK[]");
             }
+            if (fp.contains(FetchProfile.Item.DATE)) {
+                fetchFields.add("BODY.PEEK[HEADER.FIELDS (date)]");
+            }
 
 
 
@@ -1379,7 +1382,7 @@ public class ImapStore extends RemoteStore {
                     int messageNumber = 0;
 
                     ImapResponseCallback callback = null;
-                    if (fp.contains(FetchProfile.Item.BODY) || fp.contains(FetchProfile.Item.BODY_SANE)) {
+                    if (fp.contains(FetchProfile.Item.BODY) || fp.contains(FetchProfile.Item.BODY_SANE) || fp.contains(FetchProfile.Item.DATE)) {
                         callback = new FetchBodyCallback(messageMap);
                     }
 
