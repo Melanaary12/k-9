@@ -13,6 +13,7 @@ import java.nio.charset.CharacterCodingException;
 import java.nio.charset.Charset;
 import java.nio.charset.CharsetDecoder;
 import java.nio.charset.CodingErrorAction;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -85,7 +86,7 @@ public class ImapStore extends RemoteStore {
     private static final int MAX_DELAY_TIME = 5 * 60 * 1000; // 5 minutes
     private static final int NORMAL_DELAY_TIME = 5000;
     private static final String[] EMPTY_STRING_ARRAY = new String[0];
-
+    private static final DateFormat INTERNAL_DATE = new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss Z", Locale.US);
     private static final int FETCH_WINDOW_SIZE = 100;
     private Set<Flag> mPermanentFlagsIndex = EnumSet.noneOf(Flag.class);
     private ConnectivityManager mConnectivityManager;
@@ -1863,10 +1864,20 @@ public class ImapStore extends RemoteStore {
             try {
                 Map<String, String> uidMap = new HashMap<String, String>();
                 for (Message message : messages) {
+
+                    /*
+                        http://www.faqs.org/rfcs/rfc3501.html
+                        6.3.11. APPEND Command
+                        If a date-time is specified, the internal date SHOULD be set in
+                        the resulting message; otherwise, the internal date of the
+                        resulting message is set to the current date and time by default.
+                    */
+                    Date internalDate = message.getInternalDate() == null ? new Date() : message.getInternalDate();
                     mConnection.sendCommand(
-                        String.format(Locale.US, "APPEND %s (%s) {%d}",
+                        String.format(Locale.US, "APPEND %s (%s) \"%s\" {%d}",
                                       encodeString(encodeFolderName(getPrefixedName())),
                                       combineFlags(message.getFlags()),
+                                      INTERNAL_DATE.format(internalDate),
                                       message.calculateSize()), false);
 
                     ImapResponse response;
