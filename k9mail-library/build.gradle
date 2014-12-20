@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'maven'
 apply from: '../gradle/plugins/checkstyle-android.gradle'
 apply from: '../gradle/plugins/findbugs-android.gradle'
 
@@ -39,5 +40,22 @@ android {
         exclude 'META-INF/LICENSE.txt'
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/NOTICE.txt'
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(id: 'zegoggles', url: "http://zegoggl.es:8081/nexus/content/repositories/thirdparty/") {
+                def sha = "git rev-parse --short HEAD".execute().text
+                authentication(userName: username, password:password)
+                pom.project {
+                    version "0.0.1.$sha"
+                    groupId 'com.fsck.k9.mail'
+                    artifactId 'lib'
+                    packaging 'aar'
+                }
+            }
+        }
     }
 }
