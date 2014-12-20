@@ -14,6 +14,7 @@ import com.fsck.k9.mail.MessagingException;
 import com.fsck.k9.mail.filter.Base64;
 import com.fsck.k9.mail.filter.PeekableInputStream;
 import com.fsck.k9.mail.ssl.TrustedSocketFactory;
+import com.fsck.k9.mail.store.XOAuth2AuthenticationFailedException;
 import com.jcraft.jzlib.JZlib;
 import com.jcraft.jzlib.ZOutputStream;
 
@@ -42,6 +43,8 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 import javax.net.ssl.SSLException;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import static com.fsck.k9.mail.ConnectionSecurity.STARTTLS_REQUIRED;
 import static com.fsck.k9.mail.K9MailLib.DEBUG_PROTOCOL_IMAP;
@@ -524,6 +527,11 @@ class ImapConnection {
                     throw new CertificateValidationException(CertificateValidationException.Reason.MissingCapability);
                 }
                 break;
+
+            case XOAUTH:
+            case XOAUTH2:
+                handleXOAuth(authType.name(), mSettings.getPassword());
+                break;
             default:
                 throw new MessagingException("Unhandled authentication method found in the server settings (bug).");
         }
@@ -606,5 +614,41 @@ class ImapConnection {
             Log.d(LOG_TAG, "Saving " + capabilities + " capabilities for " + getLogId());
         }
         return responses;
+    }
+
+    // https://developers.google.com/google-apps/gmail/xoauth2_protocol
+    private void handleXOAuth(String name, String token) throws IOException, MessagingException {
+        if (!hasCapability("AUTH="+ name)) {
+            throw new MessagingException("Server does not support "+ name);
+        }
+        final JSONObject[] obj = new JSONObject[1];
+        try {
+            executeSimpleCommand("AUTHENTICATE " + name + " " + token, true, new UntaggedHandler() {
+                @Override
+                public void handleAsyncUntaggedResponse(ImapResponse response) {
+                    if (K9MailLib.isDebug() && DEBUG_PROTOCOL_IMAP) {
+                        Log.d(LOG_TAG, "Untagged response " + response.toString());
+                    }
+                    if (response.isContinuationRequested() && response.size() == 1) {
+                        String resp = new String(Base64.decodeBase64(response.get(0).toString().getBytes()));
+                        try {
+                            obj[0] = new JSONObject(resp);
+                        } catch (JSONException e) {
+                            Log.w(LOG_TAG, "error parsing response" + response.toString(), e);
+                        }
+                        // client sends an empty response ("\r\n") to the challenge containing
+                        // the error message.
+                        try {
+                            mOut.write('\r');
+                            mOut.write('\n');
+                            mOut.flush();
+                        } catch (IOException ignored) {
+                        }
+                    }
+                }
+            });
+        } catch (MessagingException e) {
+            throw new XOAuth2AuthenticationFailedException(e.getMessage(), obj[0]);
+        }
     }
 }
