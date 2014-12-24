@@ -425,7 +425,7 @@ class ImapResponseParser {
                 sb.append((char)ch);
             }
         }
-        throw new IOException("readStringUntil(): end of stream reached");
+        throw new IOException("readStringUntil("+end+"): end of stream reached");
     }
 
     private int expect(char ch) throws IOException {
