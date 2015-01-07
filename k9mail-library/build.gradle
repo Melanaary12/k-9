@@ -68,7 +68,7 @@ android {
 uploadArchives {
     repositories {
         mavenDeployer {
-            repository(id: 'zegoggles', url: "http://zegoggl.es:8081/nexus/content/repositories/thirdparty/") {
+            repository(id: 'bintray', url: "https://api.bintray.com/maven/jberkel/maven/k9mail-library") {
                 def sha = "git rev-parse --short HEAD".execute().text
                 if (project.hasProperty('username') && project.hasProperty('password')) {
                     authentication(userName: username, password: password)
