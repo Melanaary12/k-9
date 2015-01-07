@@ -564,13 +564,13 @@ class ImapConnection {
             throws GeneralSecurityException, MessagingException, IOException {
         // Try all IPv4 and IPv6 addresses of the host
         InetAddress[] addresses = InetAddress.getAllByName(settings.getHost());
-        for (int i = 0; i < addresses.length; i++) {
+        for (InetAddress address : addresses) {
             try {
                 if (K9MailLib.isDebug() && DEBUG_PROTOCOL_IMAP) {
-                    Log.d(LOG_TAG, "Connecting to " + settings.getHost() + " as " + addresses[i]);
+                    Log.d(LOG_TAG, "Connecting to " + settings.getHost() + " as " + address);
                 }
 
-                SocketAddress socketAddress = new InetSocketAddress(addresses[i], settings.getPort());
+                SocketAddress socketAddress = new InetSocketAddress(address, settings.getPort());
                 Socket socket;
                 if (settings.getConnectionSecurity() == ConnectionSecurity.SSL_TLS_REQUIRED) {
                     socket = socketFactory.createSocket(
@@ -585,11 +585,7 @@ class ImapConnection {
                 // Successfully connected to the server; don't try any other addresses
                 return socket;
             } catch (IOException e) {
-                if (i < (addresses.length - 1)) {
-                    // There are still other addresses for that host to try
-                    continue;
-                }
-                throw new MessagingException("Cannot connect to host", e);
+                Log.d(LOG_TAG, "error connecting to host", e);
             }
         }
         throw new MessagingException("Cannot connect to host");
