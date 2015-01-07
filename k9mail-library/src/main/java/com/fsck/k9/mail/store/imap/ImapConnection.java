@@ -584,7 +584,7 @@ class ImapConnection {
                 socket.connect(socketAddress, SOCKET_CONNECT_TIMEOUT);
                 // Successfully connected to the server; don't try any other addresses
                 return socket;
-            } catch (SocketException e) {
+            } catch (IOException e) {
                 if (i < (addresses.length - 1)) {
                     // There are still other addresses for that host to try
                     continue;
