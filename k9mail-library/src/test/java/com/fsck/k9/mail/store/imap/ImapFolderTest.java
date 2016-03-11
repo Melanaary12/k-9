@@ -984,7 +984,7 @@ public class ImapFolderTest {
 
         folder.appendMessages(messages);
 
-        verify(imapConnection).sendCommand("APPEND \"Folder\" () {0}", false);
+        verify(imapConnection).sendCommand("APPEND \"Folder\" () \"01-Jan-1970 00:00:00 +0000\" {0}", false);
     }
 
     @Test
@@ -1181,6 +1181,7 @@ public class ImapFolderTest {
     private ImapMessage createImapMessage(String uid) {
         ImapMessage message = mock(ImapMessage.class);
         when(message.getUid()).thenReturn(uid);
+        when(message.getInternalDate()).thenReturn(new Date(0));
 
         return message;
     }

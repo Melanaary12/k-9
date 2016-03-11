@@ -4,6 +4,7 @@ package com.fsck.k9.mail.store.imap;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,6 +47,14 @@ class ImapFolder extends Folder<ImapMessage> {
             return new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
         }
     };
+
+    private static final ThreadLocal<SimpleDateFormat> INTERNAL_DATE = new ThreadLocal<SimpleDateFormat>() {
+        @Override
+        protected SimpleDateFormat initialValue() {
+            return new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss Z", Locale.US);
+        }
+    };
+
     private static final int MORE_MESSAGES_WINDOW_SIZE = 500;
     private static final int FETCH_WINDOW_SIZE = 100;
 
@@ -1151,11 +1160,18 @@ class ImapFolder extends Folder<ImapMessage> {
             Map<String, String> uidMap = new HashMap<>();
             for (Message message : messages) {
                 long messageSize = message.calculateSize();
-
+                /*
+                   http://www.faqs.org/rfcs/rfc3501.html
+                    6.3.11. APPEND Command
+                    If a date-time is specified, the internal date SHOULD be set in
+                    the resulting message; otherwise, the internal date of the
+                    resulting message is set to the current date and time by default.
+                */
+                Date internalDate = message.getInternalDate() == null ? new Date() : message.getInternalDate();
                 String encodeFolderName = folderNameCodec.encode(getPrefixedName());
                 String escapedFolderName = ImapUtility.encodeString(encodeFolderName);
-                String command = String.format(Locale.US, "APPEND %s (%s) {%d}", escapedFolderName,
-                        combineFlags(message.getFlags()), messageSize);
+                String command = String.format(Locale.US, "APPEND %s (%s) \"%s\" {%d}", escapedFolderName,
+                        combineFlags(message.getFlags()), INTERNAL_DATE.get().format(internalDate), messageSize);
                 connection.sendCommand(command, false);
 
                 ImapResponse response;
