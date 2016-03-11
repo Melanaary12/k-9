@@ -17,6 +17,7 @@
 
 package com.fsck.k9.mail.filter;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 
@@ -241,7 +242,12 @@ public class Base64 {
         }
         this.decodeSize = encodeSize - 1;
         if (containsBase64Byte(lineSeparator)) {
-            String sep = new String(lineSeparator, Charset.forName("UTF-8"));
+            String sep = null;
+            try {
+                sep = new String(lineSeparator, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            }
 
             throw new IllegalArgumentException("lineSeperator must not contain base64 characters: [" + sep + "]");
         }

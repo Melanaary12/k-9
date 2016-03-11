@@ -1,6 +1,7 @@
 package com.fsck.k9.mail.store.imap;
 
 
+import java.io.UnsupportedEncodingException;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.CharacterCodingException;
@@ -13,7 +14,6 @@ import com.beetstra.jutf7.CharsetProvider;
 
 class FolderNameCodec {
     private final Charset modifiedUtf7Charset;
-    private final Charset asciiCharset;
 
 
     public static FolderNameCodec newInstance() {
@@ -22,7 +22,6 @@ class FolderNameCodec {
 
     private FolderNameCodec() {
         modifiedUtf7Charset = new CharsetProvider().charsetForName("X-RFC-3501");
-        asciiCharset = Charset.forName("US-ASCII");
     }
 
     public String encode(String folderName) {
@@ -30,14 +29,21 @@ class FolderNameCodec {
         byte[] bytes = new byte[byteBuffer.limit()];
         byteBuffer.get(bytes);
 
-        return new String(bytes, asciiCharset);
+        try {
+            return new String(bytes, "US-ASCII");
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public String decode(String encodedFolderName) throws CharacterCodingException {
         CharsetDecoder decoder = modifiedUtf7Charset.newDecoder().onMalformedInput(CodingErrorAction.REPORT);
-        ByteBuffer byteBuffer = ByteBuffer.wrap(encodedFolderName.getBytes(asciiCharset));
-        CharBuffer charBuffer = decoder.decode(byteBuffer);
-
-        return charBuffer.toString();
+        try {
+            ByteBuffer byteBuffer = ByteBuffer.wrap(encodedFolderName.getBytes("US-ASCII"));
+            CharBuffer charBuffer = decoder.decode(byteBuffer);
+            return charBuffer.toString();
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.charset.CharacterCodingException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,7 +52,7 @@ public class ImapStore extends RemoteStore {
     private String pathPrefix;
     private String combinedPrefix = null;
     private String pathDelimiter = null;
-    private final Deque<ImapConnection> connections = new LinkedList<ImapConnection>();
+    private final LinkedList<ImapConnection> connections = new LinkedList<ImapConnection>();
     private FolderNameCodec folderNameCodec;
 
     /**

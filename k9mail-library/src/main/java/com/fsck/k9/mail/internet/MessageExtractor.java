@@ -13,6 +13,7 @@ import java.util.regex.Pattern;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
+import android.text.TextUtils;
 
 import com.fsck.k9.mail.Body;
 import com.fsck.k9.mail.BodyPart;
@@ -83,7 +84,7 @@ public class MessageExtractor {
                 in.read(buf, 0, buf.length);
                 String str = new String(buf, "US-ASCII");
 
-                if (str.isEmpty()) {
+                if (TextUtils.isEmpty(str)) {
                     return "";
                 }
                 Pattern p = Pattern.compile("<meta http-equiv=\"?Content-Type\"? content=\"text/html; charset=(.+?)\">", Pattern.CASE_INSENSITIVE);

@@ -14,6 +14,7 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.X509ExtendedKeyManager;
 import javax.security.auth.x500.X500Principal;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.os.Build;
 import android.security.KeyChain;
@@ -31,6 +32,7 @@ import static com.fsck.k9.mail.CertificateValidationException.Reason.RetrievalFa
  * For client certificate authentication! Provide private keys and certificates
  * during the TLS handshake using the Android 4.0 KeyChain API.
  */
+@TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
 class KeyChainKeyManager extends X509ExtendedKeyManager {
 
     private static PrivateKey sClientCertificateReferenceWorkaround;
