@@ -46,7 +46,7 @@ public class Address implements Serializable {
         this(address, null, true);
     }
 
-    private Address(String address, String personal, boolean parse) {
+    public Address(String address, String personal, boolean parse) {
         if (parse) {
             Rfc822Token[] tokens =  Rfc822Tokenizer.tokenize(address);
             if (tokens.length > 0) {

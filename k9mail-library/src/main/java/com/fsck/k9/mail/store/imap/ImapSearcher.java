@@ -7,6 +7,6 @@ import java.util.List;
 import com.fsck.k9.mail.MessagingException;
 
 
-interface ImapSearcher {
+public interface ImapSearcher {
     List<ImapResponse> search() throws IOException, MessagingException;
 }

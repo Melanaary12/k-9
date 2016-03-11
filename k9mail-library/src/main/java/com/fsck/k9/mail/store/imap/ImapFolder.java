@@ -40,15 +40,15 @@ import static com.fsck.k9.mail.K9MailLib.LOG_TAG;
 import static com.fsck.k9.mail.store.imap.ImapUtility.getLastResponse;
 
 
-class ImapFolder extends Folder<ImapMessage> {
-    private static final ThreadLocal<SimpleDateFormat> RFC3501_DATE = new ThreadLocal<SimpleDateFormat>() {
+public class ImapFolder extends Folder<ImapMessage> {
+    protected static final ThreadLocal<SimpleDateFormat> RFC3501_DATE = new ThreadLocal<SimpleDateFormat>() {
         @Override
         protected SimpleDateFormat initialValue() {
             return new SimpleDateFormat("dd-MMM-yyyy", Locale.US);
         }
     };
 
-    private static final ThreadLocal<SimpleDateFormat> INTERNAL_DATE = new ThreadLocal<SimpleDateFormat>() {
+    protected static final ThreadLocal<SimpleDateFormat> INTERNAL_DATE = new ThreadLocal<SimpleDateFormat>() {
         @Override
         protected SimpleDateFormat initialValue() {
             return new SimpleDateFormat("dd-MMM-yyyy HH:mm:ss Z", Locale.US);
@@ -114,7 +114,7 @@ class ImapFolder extends Folder<ImapMessage> {
         return prefixedName;
     }
 
-    private List<ImapResponse> executeSimpleCommand(String command) throws MessagingException, IOException {
+    protected List<ImapResponse> executeSimpleCommand(String command) throws MessagingException, IOException {
         return handleUntaggedResponses(connection.executeSimpleCommand(command));
     }
 
@@ -621,7 +621,7 @@ class ImapFolder extends Folder<ImapMessage> {
         return search(searcher, null);
     }
 
-    private List<ImapMessage> search(ImapSearcher searcher, MessageRetrievalListener<ImapMessage> listener)
+    protected List<ImapMessage> search(ImapSearcher searcher, MessageRetrievalListener<ImapMessage> listener)
             throws MessagingException {
         checkOpen();
 
