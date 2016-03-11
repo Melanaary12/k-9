@@ -705,6 +705,9 @@ class ImapFolder extends Folder<ImapMessage> {
         if (fetchProfile.contains(FetchProfile.Item.BODY)) {
             fetchFields.add("BODY.PEEK[]");
         }
+        if (fetchProfile.contains(FetchProfile.Item.DATE)) {
+            fetchFields.add("BODY.PEEK[HEADER.FIELDS (date)]");
+        }
 
         String spaceSeparatedFetchFields = combine(fetchFields.toArray(new String[fetchFields.size()]), ' ');
 
@@ -722,7 +725,8 @@ class ImapFolder extends Folder<ImapMessage> {
 
                 ImapResponseCallback callback = null;
                 if (fetchProfile.contains(FetchProfile.Item.BODY) ||
-                        fetchProfile.contains(FetchProfile.Item.BODY_SANE)) {
+                        fetchProfile.contains(FetchProfile.Item.BODY_SANE) ||
+                        fetchProfile.contains(FetchProfile.Item.DATE)) {
                     callback = new FetchBodyCallback(messageMap);
                 }
 
