@@ -19,7 +19,7 @@ import java.util.Map;
 
 public abstract class RemoteStore extends Store {
     public static final int SOCKET_CONNECT_TIMEOUT = 30000;
-    public static final int SOCKET_READ_TIMEOUT = 60000;
+    public static final int SOCKET_READ_TIMEOUT = 120000;
 
     protected StoreConfig mStoreConfig;
     protected TrustedSocketFactory mTrustedSocketFactory;
