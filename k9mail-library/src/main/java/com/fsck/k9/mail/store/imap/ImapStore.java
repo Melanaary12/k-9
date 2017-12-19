@@ -92,6 +92,15 @@ public class ImapStore extends RemoteStore {
         authType = settings.authenticationType;
         username = settings.username;
         password = settings.password;
+
+        if (username == null) {
+            throw new MessagingException("username not set");
+        }
+
+        if (password == null) {
+            throw new MessagingException("password not set");
+        }
+
         clientCertificateAlias = settings.clientCertificateAlias;
 
         // Make extra sure pathPrefix is null if "auto-detect namespace" is configured
