@@ -8,7 +8,6 @@ if (!rootProject.optimizeForDevelopment) {
 if (rootProject.testCoverage) {
     apply plugin: 'jacoco'
 }
-apply plugin: 'maven'
 
 repositories {
     jcenter()
@@ -67,24 +66,5 @@ android {
         exclude 'META-INF/NOTICE'
         exclude 'META-INF/NOTICE.txt'
         exclude 'LICENSE.txt'
-    }
-
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                repository(id: 'bintray', url: "https://api.bintray.com/maven/jberkel/maven/k9mail-library") {
-                    def sha = "git rev-parse --short HEAD".execute().text
-                    if (project.hasProperty('username') && project.hasProperty('apikey')) {
-                        authentication(userName: username, password: apikey)
-                    }
-                    pom.project {
-                        version "0.0.1.$sha"
-                        groupId 'com.fsck.k9.mail'
-                        artifactId 'lib'
-                        packaging 'aar'
-                    }
-                }
-            }
-        }
     }
 }
