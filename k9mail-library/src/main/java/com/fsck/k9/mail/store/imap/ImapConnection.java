@@ -10,13 +10,14 @@ import java.net.ConnectException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.security.GeneralSecurityException;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Security;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -182,44 +183,46 @@ class ImapConnection {
     }
 
     private Socket connect() throws GeneralSecurityException, MessagingException, IOException {
-        Exception connectException = null;
-
-        InetAddress[] inetAddresses = InetAddress.getAllByName(settings.getHost());
-        for (InetAddress address : inetAddresses) {
-            try {
-                return connectToAddress(address);
-            } catch (IOException e) {
-                Log.w(LOG_TAG, "Could not connect to " + address, e);
-                connectException = e;
-            }
-        }
-
-        throw new MessagingException("Cannot connect to host", connectException);
+        return connectToAddress(InetAddress.getAllByName(settings.getHost()));
     }
 
-    private Socket connectToAddress(InetAddress address) throws NoSuchAlgorithmException, KeyManagementException,
-            MessagingException, IOException {
+    Socket connectToAddress(InetAddress[] addresses) throws
+            NoSuchAlgorithmException,
+            KeyManagementException,
+            MessagingException {
 
-        String host = settings.getHost();
-        int port = settings.getPort();
-        String clientCertificateAlias = settings.getClientCertificateAlias();
+        final String host = settings.getHost();
+        final int port = settings.getPort();
+        final String clientCertificateAlias = settings.getClientCertificateAlias();
 
-        if (K9MailLib.isDebug() && DEBUG_PROTOCOL_IMAP) {
-            Log.d(LOG_TAG, "Connecting to " + host + " as " + address);
+        List<ConnectableAddress> connectableAddresses = new ArrayList<>();
+        for (InetAddress address : addresses) {
+            connectableAddresses.add(new ConnectableAddress(new InetSocketAddress(address, port)));
         }
+        Collections.sort(connectableAddresses);
+        final long startConnect = System.currentTimeMillis();
+        while (!connectableAddresses.isEmpty() && (System.currentTimeMillis() - startConnect) < socketConnectTimeout) {
+            ConnectableAddress address = connectableAddresses.get(0);
+            try {
+                Socket socket;
+                if (settings.getConnectionSecurity() == ConnectionSecurity.SSL_TLS_REQUIRED) {
+                    socket = socketFactory.createSocket(null, host, port, clientCertificateAlias);
+                } else {
+                    socket = new Socket();
+                }
 
-        SocketAddress socketAddress = new InetSocketAddress(address, port);
-
-        Socket socket;
-        if (settings.getConnectionSecurity() == ConnectionSecurity.SSL_TLS_REQUIRED) {
-            socket = socketFactory.createSocket(null, host, port, clientCertificateAlias);
-        } else {
-            socket = new Socket();
+                address.connect(socket, socketConnectTimeout - (System.currentTimeMillis() - startConnect));
+                return socket;
+            } catch (ConnectableAddress.MaxRetriesException e) {
+                connectableAddresses.remove(address);
+            } catch (IOException ignored) {
+                if (K9MailLib.isDebug()) {
+                    Log.w(LOG_TAG, ignored);
+                }
+            }
+            Collections.sort(connectableAddresses);
         }
-
-        socket.connect(socketAddress, socketConnectTimeout);
-
-        return socket;
+        throw new MessagingException("Cannot connect to host "+host+":"+port);
     }
 
     private void configureSocket() throws SocketException {
@@ -755,5 +758,51 @@ class ImapConnection {
         } while (!response.isContinuationRequested());
 
         return response;
+    }
+
+    private static class ConnectableAddress implements Comparable<ConnectableAddress> {
+        static class MaxRetriesException extends IOException {}
+        private final long initialBackoff = 5000;
+        private final int maxTries = 3;
+        private final InetSocketAddress socketAddress;
+        private long lastAttempt;
+        private int numTries;
+
+        ConnectableAddress(InetSocketAddress socketAddress) {
+            this.socketAddress = socketAddress;
+        }
+
+        void connect(Socket socket, long remainingTime) throws IOException {
+            if (numTries++ >= maxTries) throw new MaxRetriesException();
+            if (remainingTime <= 0) throw new SocketTimeoutException();
+
+            final int timeout = (int) Math.min(remainingTime, (initialBackoff * (Math.pow(2, numTries - 1))));
+            if (K9MailLib.isDebug() && DEBUG_PROTOCOL_IMAP) {
+                Log.d(LOG_TAG, "Connecting to " + this + ", timeout="+timeout);
+            }
+            lastAttempt = System.currentTimeMillis();
+            socket.connect(socketAddress, timeout);
+        }
+
+        @Override public String toString() {
+            return "ConnectableAddress{ "+ socketAddress + ", lastAttempt=" + lastAttempt + ", numTries=" + numTries + '}';
+        }
+
+        @Override public int compareTo(ConnectableAddress other) {
+            int val = compare(lastAttempt, other.lastAttempt);
+            if (val == 0) {
+                val = compare(numTries, other.numTries);
+            }
+            if (val == 0) {
+                // prefer IPv6 addresses
+                val = compare(other.socketAddress.getAddress().getAddress().length,
+                                    socketAddress.getAddress().getAddress().length);
+            }
+            return val;
+        }
+
+        private static int compare(long a, long b) {
+            return Long.valueOf(a).compareTo(b);
+        }
     }
 }

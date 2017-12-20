@@ -2,6 +2,7 @@ package com.fsck.k9.mail.store.imap;
 
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.UnknownHostException;
 
 import android.net.ConnectivityManager;
@@ -345,8 +346,7 @@ public class ImapConnectionTest {
             fail("Expected exception");
         } catch (MessagingException e) {
             //FIXME: Throw ConnectException
-            assertEquals("Cannot connect to host", e.getMessage());
-            assertTrue(e.getCause() instanceof IOException);
+            assertEquals("Cannot connect to host 127.1.2.3:143", e.getMessage());
         }
     }
 
@@ -617,6 +617,18 @@ public class ImapConnectionTest {
         server.waitForInteractionToComplete();
         server.verifyConnectionStillOpen();
         server.verifyInteractionCompleted();
+    }
+
+    @Test(expected = MessagingException.class)
+    public void connectToAddresses() throws Exception {
+        settings.setHost("foo");
+        settings.setPort(123);
+        final ImapConnection imapConnection = createImapConnection(settings, socketFactory, connectivityManager);
+        imapConnection.connectToAddress(new InetAddress[] {
+           InetAddress.getByAddress(new byte[] {127, 0,  0, 1}),
+           InetAddress.getByAddress(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}),
+           InetAddress.getByAddress(new byte[] {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1}),
+        });
     }
 
     private ImapConnection createImapConnection(ImapSettings settings, TrustedSocketFactory socketFactory,
