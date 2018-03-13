@@ -83,9 +83,16 @@ class ImapStoreUriDecoder {
             String[] userInfoParts = userinfo.split(":");
 
             if (userinfo.endsWith(":")) {
-                // Password is empty. This can only happen after an account was imported.
-                authenticationType = AuthType.valueOf(userInfoParts[0]);
-                username = decodeUtf8(userInfoParts[1]);
+                // Last field (password/certAlias) is empty.
+                // For imports e.g.: PLAIN:username: or username:
+                // Or XOAUTH2 where it's a valid config - XOAUTH:username:
+                if (userInfoParts.length > 1) {
+                    authenticationType = AuthType.valueOf(userInfoParts[0]);
+                    username = decodeUtf8(userInfoParts[1]);
+                } else {
+                    authenticationType = AuthType.PLAIN;
+                    username = decodeUtf8(userInfoParts[0]);
+                }
             } else if (userInfoParts.length == 2) {
                 authenticationType = AuthType.PLAIN;
                 username = decodeUtf8(userInfoParts[0]);
